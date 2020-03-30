@@ -26,8 +26,8 @@ func printVariables(m *tfconfig.Module) {
 
 	var table string
 
-	table = "| Name | Type | Description | Default Value |\n"
-	table = table + "| --- | --- | --- | :---: |\n"
+	table = "| Name | Type | Description | Default Value | Required |\n"
+	table = table + "| --- | --- | --- | :---: | :---: |\n"
 
 	for _, k := range keys {
 		v := variables[k]
@@ -37,18 +37,24 @@ func printVariables(m *tfconfig.Module) {
 		}
 
 		var varDefault interface{}
+		varRequired := "no"
 
 		switch v.Default.(type) {
 		case nil:
 			varDefault = ""
+			varRequired = "yes"
 		case interface{}:
 			varDefault = v.Default
 		}
 
-		row := fmt.Sprintf("| %s | %s | %s | %v |\n", v.Name, varType, v.Description, varDefault)
+		if varDefault == nil {
+			varRequired = "yes"
+		}
+		row := fmt.Sprintf("| %s | %s | %s | %v | %s |\n", v.Name, varType, v.Description, varDefault, varRequired)
 		table = table + row
 	}
 
+	fmt.Printf("## Inputs\n\n")
 	fmt.Println(table)
 }
 
@@ -62,7 +68,6 @@ func printOutputs(m *tfconfig.Module) {
 	sort.Strings(keys)
 
 	var table string
-
 	table = "| Name | Description |\n"
 	table = table + "| --- | --- |\n"
 
@@ -72,5 +77,6 @@ func printOutputs(m *tfconfig.Module) {
 		table = table + row
 	}
 
+	fmt.Printf("## Outputs\n\n")
 	fmt.Println(table)
 }
